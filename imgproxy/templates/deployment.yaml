@@ -25,23 +25,25 @@ spec:
     {{- end }}
     spec:
     {{- if .Values.affinity }}
-      affinity:
-        {{ toYaml .Values.affinity | nindent 8 }}
+      affinity: {{ toYaml .Values.affinity | nindent 8 }}
     {{- end }}
     {{- if .Values.tolerations }}
-      tolerations:
-        {{ toYaml .Values.tolerations | nindent 8 }}
+      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
     {{- end }}
     {{- if .Values.nodeSelector }}
-      nodeSelector:
-        {{ toYaml .Values.nodeSelector | nindent 8 }}
+      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
     {{- end }}
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       - name: "{{ .Release.Name }}-docker-registry-secret"
     {{- end }}
+    {{- if .Values.volumes }}
       volumes:
-        {{ toYaml .Values.volumes | nindent 8 }}
+      {{- range $volume := .Values.volumes }}
+      - name: {{ $volume.name | quote }}
+        {{ toYaml $volume.volumeOptions | indent 8 | trim }}
+      {{- end }}    
+    {{- end }}   
       containers:
       - name: "imgproxy"
         image: "{{ .Values.image.repo }}:{{ .Values.image.tag }}"
@@ -354,9 +356,10 @@ spec:
         - name: IMGPROXY_STRIP_METADATA
           value: "true"
         {{- end }}
-
-        resources:
-          {{ toYaml .Values.resources | nindent 10 }}
+        
+        {{- if .Values.resources }}
+        resources: {{ toYaml .Values.resources | nindent 10 }}
+        {{- end }}
         ports:
         - containerPort: 8080
           name: http
@@ -394,5 +397,10 @@ spec:
           successThreshold: {{ .successThreshold | default 1 }}
           failureThreshold: {{ .failureThreshold | default 5 }}
           {{- end }}
+        {{- if .Values.volumes }}
         volumeMounts:
-          {{ toYaml .Values.volumeMounts | nindent 10 }}          
+          {{- range $volume := .Values.volumes }}
+          - name: {{ $volume.name | quote }}
+            {{ toYaml $volume.mountOptions | indent 12 | trim }}
+          {{- end }}    
+        {{- end }}   
