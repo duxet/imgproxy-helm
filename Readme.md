@@ -182,6 +182,8 @@ Deployment specific options.
 |**resources**|Hash of resource limits for your pods|`{}`|
 |**serviceType**|Kubernetes service type for imgproxy|`ClusterIP`|
 |**tolerations**|Tolerations for Kubernetes taints||
+|**volumes**|Define volumes for use in `volumeMounts`|`{}`|
+|**volumeMounts**|Mount volumes to imgproxy pod|`{}`|
 
 
 ### Ingress configuration

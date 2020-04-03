@@ -17,29 +17,31 @@ spec:
       labels:
         app: {{ template "imgproxy.fullname" . }}
         release: {{ .Release.Name | quote }}
-{{- if .Values.annotations }}
+    {{- if .Values.annotations }}
       annotations:
         {{- range $key, $value := .Values.annotations }}
         {{ $key }}: {{ $value | quote }}
         {{- end }}
-{{- end }}
+    {{- end }}
     spec:
     {{- if .Values.affinity }}
       affinity:
-{{ toYaml .Values.affinity | indent 8 }}
+        {{ toYaml .Values.affinity | nindent 8 }}
     {{- end }}
     {{- if .Values.tolerations }}
       tolerations:
-{{ toYaml .Values.tolerations | indent 8 }}
+        {{ toYaml .Values.tolerations | nindent 8 }}
     {{- end }}
     {{- if .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
+        {{ toYaml .Values.nodeSelector | nindent 8 }}
     {{- end }}
-{{- if .Values.imagePullSecrets }}
+    {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       - name: "{{ .Release.Name }}-docker-registry-secret"
-{{- end }}
+    {{- end }}
+      volumes:
+        {{ toYaml .Values.volumes | nindent 8 }}
       containers:
       - name: "imgproxy"
         image: "{{ .Values.image.repo }}:{{ .Values.image.tag }}"
@@ -354,7 +356,7 @@ spec:
         {{- end }}
 
         resources:
-{{ toYaml .Values.resources | indent 10 }}
+          {{ toYaml .Values.resources | nindent 10 }}
         ports:
         - containerPort: 8080
           name: http
@@ -392,3 +394,5 @@ spec:
           successThreshold: {{ .successThreshold | default 1 }}
           failureThreshold: {{ .failureThreshold | default 5 }}
           {{- end }}
+        volumeMounts:
+          {{ toYaml .Values.volumeMounts | nindent 10 }}          
